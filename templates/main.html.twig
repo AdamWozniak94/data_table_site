@@ -54,7 +54,11 @@
                     sendDateCell.innerHTML = rowData.send_date;
 
                     var invoicedCell = row.insertCell();
-                    invoicedCell.innerHTML = rowData.invoiced;
+                    if (rowData.invoiced === 0) {
+                        invoicedCell.innerHTML = 'No';
+                    } else {
+                        invoicedCell.innerHTML = 'Yes';
+                    }
 
                 });
                 pagination.innerHTML = '';
