@@ -28,11 +28,11 @@
 {% block javascripts %}
     <script>
         $(document).ready(function () {
-            var table = document.getElementById('main-table');
             var tbody = document.getElementById('main-table-body');
             var pagination = document.getElementById('pagination');
             var currentPage = 0;
 
+            // remove old rows and insert new filled with fetched data + refresh page buttons
             function renderTable(data) {
                 tbody.innerHTML = '';
                 data.rows.forEach(function (rowData) {
@@ -74,6 +74,7 @@
                 }
             }
 
+            //fetch data from json and call renderTable function
             function getTableData(page) {
                 if (page !== currentPage) {
                     currentPage = page;
@@ -87,6 +88,7 @@
                 }
             }
 
+            //initial render
             getTableData(1);
 
         })

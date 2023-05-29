@@ -15,8 +15,6 @@ class MainController extends AbstractController
      */
     public function index(): Response
     {
-//        $data = $this->getData();
-//        dump($data);
         return $this->render('main.html.twig');
     }
 
@@ -27,8 +25,10 @@ class MainController extends AbstractController
     {
         $page = $request->query->get('page');
         $limit = $request->query->get('limit');
+
         $jsonData = file_get_contents('assets/naglowki_zamowienia.json');
         $decodedData = json_decode($jsonData);
+
         $total = count($decodedData);
         $pages = ceil($total / $limit);
         $offset = ($page - 1)  * $limit;
