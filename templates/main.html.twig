@@ -1,10 +1,26 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    <style>
+        .active a {
+            pointer-events: none;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="row justify-content-center">
         <div class="col-10">
             <div class="card">
-                <table class="table table-bordered" id="main-table">
+                <div class="row mt-5">
+                    <div class="col-md-5 mx-auto">
+                        <div class="input-group mb-3">
+                            <input class="form-control border" type="search"
+                                   placeholder="Type and press Enter to search for Ref or Symbol" id="search-input">
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-sm table-striped table-bordered" id="main-table">
                     <thead>
                         <tr>
                             <th id="ref">Ref</th>
@@ -30,9 +46,11 @@
         $(document).ready(function () {
             var tbody = document.getElementById('main-table-body');
             var pagination = document.getElementById('pagination');
+            var searchInput = document.getElementById('search-input');
             var currentPage = 0;
             var orderBy = 'ref';
             var sortOrder = 'asc';
+            var search = '';
 
             // remove old rows and insert new filled with fetched data + refresh page buttons
             function renderTable(data) {
@@ -81,12 +99,12 @@
             }
 
             //fetch data from json and call renderTable function
-            function getTableData(page = 1, orderBy = 'ref', sortOrder = 'asc') {
+            function getTableData(page = 1, orderBy = 'ref', sortOrder = 'asc', search = '') {
                 currentPage = page;
                 $.ajax({
                     url: "{{ path('app_main_getpagedata') }}",
                     method: 'GET',
-                    data: { page: page, limit: 20, orderBy: orderBy, sortOrder: sortOrder },
+                    data: { page: page, limit: 20, orderBy: orderBy, sortOrder: sortOrder, search: search },
                     success: renderTable
 
                 })
@@ -109,6 +127,21 @@
                     getTableData(currentPage, orderBy, sortOrder);
                 }
             })
+
+            // get search phrase and rerender table after pressing "Enter" key on the keyboard
+            searchInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    search = event.target.value;
+                    getTableData(currentPage, orderBy, sortOrder, search);
+                }
+            });
+
+            // trigger table rendering after clicking on 'x' in search bar
+            $('#search-input').on('search', function () {
+                if($(this).val().length === 0){
+                    getTableData(currentPage, orderBy, sortOrder);
+                }
+            });
 
             //initial render
             getTableData();
