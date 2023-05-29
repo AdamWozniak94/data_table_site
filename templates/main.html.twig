@@ -7,11 +7,11 @@
                 <table class="table table-bordered" id="main-table">
                     <thead>
                         <tr>
-                            <th>Ref</th>
+                            <th id="ref">Ref</th>
                             <th>Client Name</th>
-                            <th>Registration Date</th>
-                            <th>Symbol</th>
-                            <th>Send Date</th>
+                            <th id="regdate">Registration Date</th>
+                            <th id="symbol">Symbol</th>
+                            <th id="send_date">Send Date</th>
                             <th>Invoiced</th>
                         </tr>
                     </thead>
@@ -31,6 +31,8 @@
             var tbody = document.getElementById('main-table-body');
             var pagination = document.getElementById('pagination');
             var currentPage = 0;
+            var orderBy = 'ref';
+            var sortOrder = 'asc';
 
             // remove old rows and insert new filled with fetched data + refresh page buttons
             function renderTable(data) {
@@ -72,28 +74,44 @@
                     a.classList.add('page-link');
                     a.setAttribute('href', '#');
                     a.innerText = i;
-                    a.addEventListener('click', function () {getTableData(i)} );
+                    a.addEventListener('click', function () {getTableData(i, orderBy, sortOrder)} );
                     li.appendChild(a);
                     pagination.appendChild(li);
                 }
             }
 
             //fetch data from json and call renderTable function
-            function getTableData(page) {
-                if (page !== currentPage) {
-                    currentPage = page;
-                    $.ajax({
-                        url: "{{ path('app_main_getpagedata') }}",
-                        method: 'GET',
-                        data: { page: page, limit: 20 },
-                        success: renderTable
+            function getTableData(page = 1, orderBy = 'ref', sortOrder = 'asc') {
+                currentPage = page;
+                $.ajax({
+                    url: "{{ path('app_main_getpagedata') }}",
+                    method: 'GET',
+                    data: { page: page, limit: 20, orderBy: orderBy, sortOrder: sortOrder },
+                    success: renderTable
 
-                    })
-                }
+                })
             }
 
+            // change sorting options and rerender table
+            $('th').click(function (event) {
+                var id = event.target.id
+                if (id) {
+                    if (id === orderBy) {
+                        if (sortOrder === 'asc') {
+                            sortOrder = 'desc';
+                        } else {
+                            sortOrder = 'asc';
+                        }
+                    } else {
+                        orderBy = id;
+                        sortOrder = 'asc';
+                    }
+                    getTableData(currentPage, orderBy, sortOrder);
+                }
+            })
+
             //initial render
-            getTableData(1);
+            getTableData();
 
         })
     </script>
