@@ -1,9 +1,96 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-
+    <div class="row justify-content-center">
+        <div class="col-10">
+            <div class="card">
+                <table class="table table-bordered" id="main-table">
+                    <thead>
+                        <tr>
+                            <th>Ref</th>
+                            <th>Client Name</th>
+                            <th>Registration Date</th>
+                            <th>Symbol</th>
+                            <th>Send Date</th>
+                            <th>Invoiced</th>
+                        </tr>
+                    </thead>
+                    <tbody id="main-table-body">
+                    </tbody>
+                </table>
+                <ul class="pagination" id="pagination">
+                </ul>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascripts %}
+    <script>
+        $(document).ready(function () {
+            var tbody = document.getElementById('main-table-body');
+            var pagination = document.getElementById('pagination');
+            var currentPage = 0;
 
+            // remove old rows and insert new filled with fetched data + refresh page buttons
+            function renderTable(data) {
+                tbody.innerHTML = '';
+                data.rows.forEach(function (rowData) {
+                    var row = tbody.insertRow();
+
+                    var refCell = row.insertCell();
+                    refCell.innerHTML = rowData.ref;
+
+                    var clientNameCell = row.insertCell();
+                    clientNameCell.innerHTML = rowData.client_name;
+
+                    var regDateCell = row.insertCell();
+                    regDateCell.innerHTML = rowData.regdate;
+
+                    var symbolCell = row.insertCell();
+                    symbolCell.innerHTML = rowData.symbol;
+
+                    var sendDateCell = row.insertCell();
+                    sendDateCell.innerHTML = rowData.send_date;
+
+                    var invoicedCell = row.insertCell();
+                    invoicedCell.innerHTML = rowData.invoiced;
+
+                });
+                pagination.innerHTML = '';
+                for (let i = 1; i <= data.pages; i++) {
+                    var li = document.createElement('li');
+                    li.classList.add('page-item');
+                    if (currentPage === i) {
+                        li.classList.add('active');
+                    }
+                    var a = document.createElement('a');
+                    a.classList.add('page-link');
+                    a.setAttribute('href', '#');
+                    a.innerText = i;
+                    a.addEventListener('click', function () {getTableData(i)} );
+                    li.appendChild(a);
+                    pagination.appendChild(li);
+                }
+            }
+
+            //fetch data from json and call renderTable function
+            function getTableData(page) {
+                if (page !== currentPage) {
+                    currentPage = page;
+                    $.ajax({
+                        url: "{{ path('app_main_getpagedata') }}",
+                        method: 'GET',
+                        data: { page: page, limit: 20 },
+                        success: renderTable
+
+                    })
+                }
+            }
+
+            //initial render
+            getTableData(1);
+
+        })
+    </script>
 {% endblock %}
