@@ -25,9 +25,19 @@ class MainController extends AbstractController
     {
         $page = $request->query->get('page');
         $limit = $request->query->get('limit');
+        $orderBy = $request->query->get('orderBy');
+        $sortOrder = $request->query->get('sortOrder');
 
         $jsonData = file_get_contents('assets/naglowki_zamowienia.json');
         $decodedData = json_decode($jsonData);
+
+        usort($decodedData, function ($a, $b) use ($orderBy, $sortOrder) {
+            if ('asc' == $sortOrder) {
+                return $a->$orderBy > $b->$orderBy ? 1 : -1;
+            } else {
+                return $a->$orderBy > $b->$orderBy ? -1 : 1;
+            }
+        });
 
         $total = count($decodedData);
         $pages = ceil($total / $limit);
